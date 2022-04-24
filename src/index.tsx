@@ -1,15 +1,38 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
-import App from './App';
 import reportWebVitals from './reportWebVitals';
+import 'antd/dist/antd.css';
+
+import { Provider } from 'react-redux';
+import store from './reducers/index';
+import { ConfigProvider } from 'antd';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+// import 'antd/dist/antd.css';
+import { routes } from './routes/index';
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
 );
 root.render(
   <React.StrictMode>
-    <App />
+    <ConfigProvider>
+      <Provider store={store}>
+        <BrowserRouter>
+          <Routes>
+            {routes.map((item) => {
+              return (
+                <Route
+                  element={<item.component />}
+                  key={item.key}
+                  path={item.path}
+                />
+              );
+            })}
+          </Routes>
+        </BrowserRouter>
+      </Provider>
+    </ConfigProvider>
   </React.StrictMode>
 );
 
