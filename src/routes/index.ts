@@ -1,5 +1,5 @@
-import Login from '../views/Login/Login';
-import HomeIndex from '../views/Home/index';
+import Login from '../pages/Login/Login';
+import HomeIndex from '../pages/Home/index';
 
 export const routes = [
  { path: '/', component: HomeIndex, key: 'startmenu', exact: true },

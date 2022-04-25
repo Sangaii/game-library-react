@@ -1,0 +1,11 @@
+{
+ "compilerOptions": {
+  "baseUrl": "http://localhost:3003",
+  "paths": {
+   "@/*": ["src/*"],
+   "@components/*": ["src/components/*"],
+   "@pages/*": ["src/pages/*"],
+   "@utils/*": ["src/utils/*"]
+  }
+ }
+}

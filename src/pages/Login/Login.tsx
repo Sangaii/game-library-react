@@ -7,6 +7,11 @@ const Login = () => {
 
   const onFinish = (values: any) => {
     console.log('Received values of form: ', values);
+    login(values).then((res: any) => {
+      console.log(res);
+    }).catch((err: any) => {
+      console.log(err);
+    })
   };
 
   return (

@@ -3,7 +3,7 @@ import { showMessage } from './status';
 import { message } from 'antd';
 
 export let api: AxiosInstance = axios.create({
- baseURL: process.env.BASE_API,
+ baseURL: 'http://localhost:3003',
  headers: {
   Accept: 'application/json',
   // 'Content-Type': 'application/x-www-form-urlencoded',
