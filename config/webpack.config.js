@@ -320,8 +320,8 @@ module.exports = function (webpackEnv) {
     }),
     ...(modules.webpackAliases || {}),
     '@': paths.appSrc,
-    '@components': path.resolve(__dirname, 'src/components'),
-    '@pages': path.resolve(__dirname, 'src/pages'),
+    '@components': paths.appComponentsSrc,
+    '@pages': paths.appPagesSrc,
     '@ts': path.resolve(__dirname, 'src/types'),
    },
    plugins: [
