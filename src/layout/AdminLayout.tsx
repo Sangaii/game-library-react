@@ -4,18 +4,25 @@ import { Layout, Menu } from 'antd';
 import {
   MenuUnfoldOutlined,
   MenuFoldOutlined,
-  UserOutlined,
-  VideoCameraOutlined,
-  UploadOutlined,
 } from '@ant-design/icons';
 import './AdminLayout.css'
+import { useNavigate } from "react-router-dom";
+import { adminMenu } from "@/utils/menu";
 
 const { Header, Sider, Content } = Layout;
 
 const AdminLayout = (props: any) => {
   console.log(props);
+  const navigate = useNavigate();
   const [collapsed, setCollapsed] = useState(false);
   const toggle = () => { setCollapsed(!collapsed) }
+
+  const selectItem = (selected: any) => {
+    // item.props.path
+    console.log(selected.item.props.path);
+    navigate(selected.item.props.path)
+    // 页面跳转方法
+  }
 
   return (<Layout className="layout">
     <Sider trigger={null} collapsible collapsed={collapsed}>
@@ -24,23 +31,8 @@ const AdminLayout = (props: any) => {
         theme="dark"
         mode="inline"
         defaultSelectedKeys={['1']}
-        items={[
-          {
-            key: '1',
-            icon: <UserOutlined />,
-            label: 'nav 1',
-          },
-          {
-            key: '2',
-            icon: <VideoCameraOutlined />,
-            label: 'nav 2',
-          },
-          {
-            key: '3',
-            icon: <UploadOutlined />,
-            label: 'nav 3',
-          },
-        ]}
+        items={adminMenu}
+        onClick={selectItem}
       />
     </Sider>
     <Layout className="site-layout">

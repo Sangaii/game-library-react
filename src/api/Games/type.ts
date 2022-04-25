@@ -8,6 +8,7 @@ export interface gameListItem {
 export interface IResponse {
  status: String;
  data: Array<gameListItem>;
+ msg: String;
 }
 /**用户登录 */
 export interface ILogin {

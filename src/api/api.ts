@@ -1,9 +1,11 @@
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
 import { showMessage } from './status';
 import { message } from 'antd';
+console.log(12456, process.env);
 
 export let api: AxiosInstance = axios.create({
- baseURL: 'http://localhost:3003',
+ //  baseURL: 'http://localhost:3003',
+ baseURL: process.env.BASE_URL,
  headers: {
   Accept: 'application/json',
   // 'Content-Type': 'application/x-www-form-urlencoded',
