@@ -5,7 +5,6 @@ const initState = {
 };
 const handlers = {
  [SYSTEM.SET_DICT]: (state: any, action: any) => {
-  console.log(state, action);
   return { dict: action.dict };
  },
  //  [SYSTEM_DICT.SET_USERNAME]: (state: any, action: any) => {

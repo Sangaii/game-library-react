@@ -12,14 +12,12 @@ import { adminMenu } from "@/utils/menu";
 const { Header, Sider, Content } = Layout;
 
 const AdminLayout = (props: any) => {
-  console.log(props);
   const navigate = useNavigate();
   const [collapsed, setCollapsed] = useState(false);
   const toggle = () => { setCollapsed(!collapsed) }
 
   const selectItem = (selected: any) => {
     // item.props.path
-    console.log(selected.item.props.path);
     navigate(selected.item.props.path)
     // 页面跳转方法
   }

@@ -1,31 +1,24 @@
-import React, { useEffect, useState } from "react";
-import { Table, Button, message, Image, Form, Row, Col, Input, Select, Tag } from 'antd';
+import React, { ReactElement, useEffect, useRef, useState, forwardRef, useImperativeHandle } from "react";
+import { Table, Button, message, Image, Form, Row, Col, Input, Select, Tag, DatePicker } from 'antd';
 import { ColumnsType } from 'antd/es/table';
 import { games } from "@/api/Games/index";
 import { getDict } from "@/api/Common/index";
 import { connect } from "react-redux";
 import { formatDict } from "@/utils/utils";
+import AdminTable from "@/component/AdminTable/AdminTable";
 const { Option } = Select;
+const { RangePicker } = DatePicker
 const imgUrl = process.env.BASE_IMAGE_URL
 
-interface Game {
-  id: string
-  name: string
-  img: string
-  desp: string
-  classify: string
-  platform: string
-  label: string
-  maker: string
-  createTime: string
-  visits: string
-}
 
 
 const TableSearchForm = (props: any) => {
   const { dict, setDict } = props
   const [form] = Form.useForm();
   const [params, setParams] = useState({});
+  const childrenRef = useRef(null);
+  // console.log(childrenRef .current);
+
   useEffect(() => {
     getDictList();
   }, [])
@@ -35,7 +28,8 @@ const TableSearchForm = (props: any) => {
       if (res.status === '0') {
         setDict({
           ...{
-            platform: formatDict(res.data)
+            platform: formatDict(res.data),
+            platformArr: res.data,
           }
         })
       }
@@ -43,9 +37,16 @@ const TableSearchForm = (props: any) => {
       message.error(err)
     })
   }
+
   const getFields = () => {
     // 搜索框暂时先姓名 平台 创建时间（range）
     const children = [];
+    const selectOpt = [];
+    if (dict.platformArr && dict.platformArr.length) {
+      for (let i = 0; i < dict.platformArr.length; i++) {
+        selectOpt.push(<Option key={dict.platformArr[i].key}>{dict.platformArr[i].value}</Option>);
+      }
+    }
     children.push(<Col span={6} key='name' style={{ marginRight: 16 }}>
       {/* <Form.Item name={['search', 'name']} label="Name" rules={[{ required: false }]}> */}
       <Form.Item name='name' label="Name" rules={[{ required: false }]}>
@@ -54,19 +55,28 @@ const TableSearchForm = (props: any) => {
     </Col>);
     children.push(<Col span={6} key='platform' style={{ marginRight: 16 }}>
       <Form.Item name='platform' label="Platform">
-        <Input placeholder="Please input content" />
+        <Select
+          mode="multiple"
+          allowClear
+          style={{ width: '100%' }}
+          placeholder="Please select"
+        >
+          {selectOpt}
+        </Select>
       </Form.Item>
     </Col>);
     children.push(<Col span={6} key='createTime' style={{ marginRight: 16 }}>
       <Form.Item name='createTime' label="Create Time">
-        <Input placeholder="Please input content" />
+        <RangePicker />
       </Form.Item>
     </Col >);
     return children;
   };
 
   const onFinish = (values: any) => {
-    setParams(values)
+    setParams(values);
+    console.log(childrenRef.current);
+    // (childrenRef .current as unknown as any).getGameList();
   };
 
   return (
@@ -96,126 +106,12 @@ const TableSearchForm = (props: any) => {
           </Col>
         </Row>
       </Form>
-      <GameList params={[params]} dict={[dict]} />
+      <AdminTable ref={childrenRef} params={[params]} dict={[dict]} />
     </div>
   );
 };
 
-const GameList = (props: any) => {
-  const { dict } = props
 
-  const [tableData, setTableData] = useState([] as any);
-  const [loading, setLoading] = useState(false);
-  const [selectedRowKeys, setSelectedRowKeys] = useState([] as any);
-  const hasSelected = selectedRowKeys.length > 0;
-
-  const columns: ColumnsType<Game> = [
-    {
-      title: 'Id',
-      dataIndex: 'id',
-    },
-    {
-      title: 'Name',
-      dataIndex: 'name',
-    },
-    {
-      title: 'Image',
-      dataIndex: 'img',
-      render: (_: any, record: Game) => {
-        return (
-          <Image width={40} height={40} src={imgUrl + record.img}
-          />
-        )
-      }
-    },
-    {
-      title: 'Platform',
-      dataIndex: 'platform',
-      render: (_: any, record: Game) => {
-        let res = [];
-        console.log('record.platform', record.platform);
-        for (let index = 0; index < record.platform.length; index++) {
-          const element = record.platform[index];
-          const randomColor = Math.floor(Math.random() * 16777215).toString(16);
-          res.push(<Tag color={'#' + randomColor}>{dict[0].platform ? dict[0].platform[element] : null}</Tag>)
-        }
-        return res
-      }
-    },
-    {
-      title: 'Description',
-      dataIndex: 'desp',
-    },
-    {
-      title: 'Classify',
-      dataIndex: 'classify',
-    },
-    {
-      title: 'Label',
-      dataIndex: 'label',
-    },
-    {
-      title: 'Maker',
-      dataIndex: 'maker',
-    },
-    {
-      title: 'Create Time',
-      dataIndex: 'createTime',
-    },
-    {
-      title: 'Visits',
-      dataIndex: 'visits',
-    },
-  ];
-  useEffect(() => {
-    getGameList();
-  }, [])
-
-  const start = () => {
-    setLoading(true);
-    // ajax request after empty completing
-    setTimeout(() => {
-      setLoading(false)
-      setSelectedRowKeys([])
-    }, 6000);
-  };
-
-  const getGameList = () => {
-    games().then(res => {
-      if (res.status === '0') {
-        setTableData(res.data);
-      } else {
-        message.error(res.msg);
-      }
-    }).catch(err => {
-      console.log(err);
-    })
-  }
-
-
-  const onSelectChange = (selectedRowKeys: any) => {
-    console.log('selectedRowKeys changed: ', selectedRowKeys);
-    setSelectedRowKeys(selectedRowKeys);
-  };
-
-  const rowSelection = {
-    selectedRowKeys,
-    onChange: onSelectChange,
-  };
-
-
-  return (<div>
-    <div style={{ marginBottom: 16 }}>
-      <Button type="primary" onClick={start} disabled={!hasSelected} loading={loading}>
-        Reload
-      </Button>
-      <span style={{ marginLeft: 8 }}>
-        {hasSelected ? `Selected ${selectedRowKeys.length} items` : ''}
-      </span>
-    </div>
-    <Table<Game> rowKey="id" rowSelection={rowSelection} columns={columns} dataSource={tableData} />
-  </div>)
-}
 const mapStateToProps = (state: any, ownProps: any) => {
   // const { byIds, allIds } = state.todos || {};
   // const todos =

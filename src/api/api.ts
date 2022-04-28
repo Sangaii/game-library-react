@@ -1,7 +1,6 @@
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
 import { showMessage } from './status';
 import { message } from 'antd';
-console.log(12456, process.env);
 
 export let api: AxiosInstance = axios.create({
  //  baseURL: 'http://localhost:3003',
