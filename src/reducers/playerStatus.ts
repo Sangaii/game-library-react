@@ -1,4 +1,4 @@
-import { PLAYER_STATUS } from '../constants/index';
+import { PLAYER_STATUS } from './constants/index';
 
 const initState = {
  userName: '',

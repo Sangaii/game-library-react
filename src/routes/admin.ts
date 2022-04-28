@@ -5,6 +5,11 @@ import User from '@/pages/Admin/User';
 //嵌套路由 不需要再写前缀
 export const adminRoute = [
  {
+  path: '/',
+  component: Admin,
+  key: 'adminIndex',
+ },
+ {
   path: 'index',
   component: Admin,
   key: 'adminIndex',
