@@ -1,5 +1,5 @@
-import React, { ReactElement, useEffect, useRef, useState, forwardRef, useImperativeHandle } from "react";
-import { Table, Button, message, Image, Form, Row, Col, Input, Select, Tag, DatePicker } from 'antd';
+import { useEffect, useRef, useState } from "react";
+import { Button, message, Image, Form, Row, Col, Input, Select, Tag, DatePicker } from 'antd';
 import { ColumnsType } from 'antd/es/table';
 import { games } from "@/api/Games/index";
 import { getDict } from "@/api/Common/index";
@@ -10,16 +10,105 @@ const { Option } = Select;
 const { RangePicker } = DatePicker
 const imgUrl = process.env.BASE_IMAGE_URL
 
-
+interface Game {
+  id: string
+  name: string
+  img: string
+  desp: string
+  classify: string
+  platform: string
+  label: string
+  maker: string
+  createTime: string
+  visits: string
+}
 
 const TableSearchForm = (props: any) => {
   const { dict, setDict } = props
   const [form] = Form.useForm();
   const [params, setParams] = useState({});
+  const [tableData, setTableData] = useState([] as any);
   const childrenRef = useRef(null);
   // console.log(childrenRef .current);
 
+  // 因为需要用到store，所以在组件里初始化
+  const columns: ColumnsType<Game> = [
+    {
+      title: 'Id',
+      dataIndex: 'id',
+    },
+    {
+      title: 'Name',
+      dataIndex: 'name',
+    },
+    {
+      title: 'Image',
+      dataIndex: 'img',
+      render: (_: any, record: Game) => {
+        return (
+          <Image width={40} height={40} src={imgUrl + record.img}
+          />
+        )
+      }
+    },
+    {
+      title: 'Platform',
+      dataIndex: 'platform',
+      render: (_: any, record: Game) => {
+        let res = [];
+        console.log('-----------------');
+        console.log(dict);
+        if (dict && dict.platform) {
+          for (let index = 0; index < record.platform.length; index++) {
+            console.log(555555555555555);
+            const element = record.platform[index];
+            const randomColor = Math.floor(Math.random() * 16777215).toString(16);
+            res.push(<Tag key={randomColor} color={'#' + randomColor}>{dict.platform[element]}</Tag>)
+          }
+        }
+        return res
+      }
+    },
+    {
+      title: 'Description',
+      dataIndex: 'desp',
+    },
+    {
+      title: 'Classify',
+      dataIndex: 'classify',
+    },
+    {
+      title: 'Label',
+      dataIndex: 'label',
+    },
+    {
+      title: 'Maker',
+      dataIndex: 'maker',
+    },
+    {
+      title: 'Create Time',
+      dataIndex: 'createTime',
+    },
+    {
+      title: 'Visits',
+      dataIndex: 'visits',
+    },
+  ];
+
+  const getGameList = (params: any) => {
+    games(params).then(res => {
+      if (res.status === '0') {
+        setTableData(res.data);
+      } else {
+        message.error(res.msg);
+      }
+    }).catch(err => {
+      console.log(err);
+    })
+  }
+
   useEffect(() => {
+    getGameList(params);
     getDictList();
   }, [])
 
@@ -75,7 +164,10 @@ const TableSearchForm = (props: any) => {
 
   const onFinish = (values: any) => {
     setParams(values);
-    console.log(childrenRef.current);
+    getGameList(params);
+
+    //父组件调用子组件实例
+    // console.log(childrenRef.current);
     // (childrenRef .current as unknown as any).getGameList();
   };
 
@@ -106,7 +198,10 @@ const TableSearchForm = (props: any) => {
           </Col>
         </Row>
       </Form>
-      <AdminTable ref={childrenRef} params={[params]} dict={[dict]} />
+      <AdminTable
+        ref={childrenRef}
+        columns={columns}
+        dataSource={tableData} />
     </div>
   );
 };
