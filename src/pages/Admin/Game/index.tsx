@@ -5,6 +5,7 @@ import { games } from "@/api/Games/index";
 import { getDict } from "@/api/Common/index";
 import { connect } from "react-redux";
 import { formatDict } from "@/utils/utils";
+import { platformDict } from "@/utils/dict";
 import AdminTable from "@/component/AdminTable/AdminTable";
 const { Option } = Select;
 const { RangePicker } = DatePicker
@@ -56,15 +57,9 @@ const TableSearchForm = (props: any) => {
       dataIndex: 'platform',
       render: (_: any, record: Game) => {
         let res = [];
-        console.log('-----------------');
-        console.log(dict);
-        if (dict && dict.platform) {
-          for (let index = 0; index < record.platform.length; index++) {
-            console.log(555555555555555);
-            const element = record.platform[index];
-            const randomColor = Math.floor(Math.random() * 16777215).toString(16);
-            res.push(<Tag key={randomColor} color={'#' + randomColor}>{dict.platform[element]}</Tag>)
-          }
+        for (let index = 0; index < record.platform.length; index++) {
+          const element = record.platform[index];
+          res.push(<Tag key={platformDict[element].key} color={platformDict[element].color}>{platformDict[element].value}</Tag>)
         }
         return res
       }
@@ -131,10 +126,8 @@ const TableSearchForm = (props: any) => {
     // 搜索框暂时先姓名 平台 创建时间（range）
     const children = [];
     const selectOpt = [];
-    if (dict.platformArr && dict.platformArr.length) {
-      for (let i = 0; i < dict.platformArr.length; i++) {
-        selectOpt.push(<Option key={dict.platformArr[i].key}>{dict.platformArr[i].value}</Option>);
-      }
+    for (let i = 0; i < platformDict.length; i++) {
+      selectOpt.push(<Option key={platformDict[i].key}>{platformDict[i].value}</Option>);
     }
     children.push(<Col span={6} key='name' style={{ marginRight: 16 }}>
       {/* <Form.Item name={['search', 'name']} label="Name" rules={[{ required: false }]}> */}
@@ -163,6 +156,7 @@ const TableSearchForm = (props: any) => {
   };
 
   const onFinish = (values: any) => {
+    console.log(values);
     setParams(values);
     getGameList(params);
 
