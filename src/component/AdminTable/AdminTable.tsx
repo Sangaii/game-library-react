@@ -6,7 +6,7 @@ import { formatDict } from "@/utils/utils";
 
 
 const AdminTable = forwardRef((props: any, ref: any) => {
-  const { columns, dataSource } = props
+  const { columns, dataSource, setSelect } = props
 
   const [loading, setLoading] = useState(false);
   const [selectedRowKeys, setSelectedRowKeys] = useState([] as any);
@@ -35,6 +35,7 @@ const AdminTable = forwardRef((props: any, ref: any) => {
   const onSelectChange = (selectedRowKeys: any) => {
     console.log('selectedRowKeys changed: ', selectedRowKeys);
     setSelectedRowKeys(selectedRowKeys);
+    setSelect(selectedRowKeys)
   };
 
   const rowSelection = {

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Button, message, Image, Form, Row, Col, Input, Select, Tag, DatePicker } from 'antd';
+import { Button, message, Image, Form, Row, Col, Input, Select, Tag, DatePicker, Modal } from 'antd';
 import { ColumnsType } from 'antd/es/table';
 import { games } from "@/api/Games/index";
 import { getDict } from "@/api/Common/index";
@@ -24,71 +24,76 @@ interface Game {
   visits: string
 }
 
+const columns: ColumnsType<Game> = [
+  {
+    title: 'Id',
+    dataIndex: 'gameId',
+  },
+  {
+    title: 'Name',
+    dataIndex: 'name',
+  },
+  {
+    title: 'Image',
+    dataIndex: 'img',
+    render: (_: any, record: Game) => {
+      return (
+        <Image width={40} height={40} src={imgUrl + record.img}
+        />
+      )
+    }
+  },
+  {
+    title: 'Platform',
+    dataIndex: 'platform',
+    render: (_: any, record: Game) => {
+      let res = [];
+      for (let index = 0; index < record.platform.length; index++) {
+        const element = record.platform[index];
+        res.push(<Tag key={platformDict[element].key} color={platformDict[element].color}>{platformDict[element].value}</Tag>)
+      }
+      return res
+    }
+  },
+  {
+    title: 'Description',
+    dataIndex: 'desp',
+  },
+  {
+    title: 'Classify',
+    dataIndex: 'classify',
+  },
+  {
+    title: 'Label',
+    dataIndex: 'label',
+  },
+  {
+    title: 'Maker',
+    dataIndex: 'maker',
+  },
+  {
+    title: 'Create Time',
+    dataIndex: 'createTime',
+  },
+  {
+    title: 'Visits',
+    dataIndex: 'visits',
+  },
+];
 const TableSearchForm = (props: any) => {
   const { dict, setDict } = props
   const [form] = Form.useForm();
+  const [editForm] = Form.useForm();
   const [params, setParams] = useState({});
   const [tableData, setTableData] = useState([] as any);
+  const [selectedRows, setSelectedRows] = useState([] as any);
+
+  const [visible, setVisible] = useState(false);
+  const [confirmLoading, setConfirmLoading] = useState(false);
+  const [modalTitle, setModalTitle] = useState('Add a new game');
+
   const childrenRef = useRef(null);
   // console.log(childrenRef .current);
-
-  // 因为需要用到store，所以在组件里初始化
-  const columns: ColumnsType<Game> = [
-    {
-      title: 'Id',
-      dataIndex: 'id',
-    },
-    {
-      title: 'Name',
-      dataIndex: 'name',
-    },
-    {
-      title: 'Image',
-      dataIndex: 'img',
-      render: (_: any, record: Game) => {
-        return (
-          <Image width={40} height={40} src={imgUrl + record.img}
-          />
-        )
-      }
-    },
-    {
-      title: 'Platform',
-      dataIndex: 'platform',
-      render: (_: any, record: Game) => {
-        let res = [];
-        for (let index = 0; index < record.platform.length; index++) {
-          const element = record.platform[index];
-          res.push(<Tag key={platformDict[element].key} color={platformDict[element].color}>{platformDict[element].value}</Tag>)
-        }
-        return res
-      }
-    },
-    {
-      title: 'Description',
-      dataIndex: 'desp',
-    },
-    {
-      title: 'Classify',
-      dataIndex: 'classify',
-    },
-    {
-      title: 'Label',
-      dataIndex: 'label',
-    },
-    {
-      title: 'Maker',
-      dataIndex: 'maker',
-    },
-    {
-      title: 'Create Time',
-      dataIndex: 'createTime',
-    },
-    {
-      title: 'Visits',
-      dataIndex: 'visits',
-    },
-  ];
 
   const getGameList = (params: any) => {
     games(params).then(res => {
@@ -165,8 +170,63 @@ const TableSearchForm = (props: any) => {
     // (childrenRef .current as unknown as any).getGameList();
   };
 
+  const getSelected = () => {
+    console.log(selectedRows);
+  }
+
+  const handleSubmit = () => {
+    console.log('submit');
+    console.log(editForm.getFieldsValue());
+  }
+
+  const openDialog = (e: React.MouseEvent, type: string) => {
+    if (type === 'edit') {
+      setModalTitle('Edit')
+    }
+    console.log(type);
+    setVisible(true);
+  }
+
   return (
     <div>
+      <Modal
+        title={modalTitle}
+        visible={visible}
+        onOk={handleSubmit}
+        confirmLoading={confirmLoading}
+        onCancel={() => setVisible(false)}
+      >
+        <Form
+          form={editForm}
+          name="advanced_search"
+          className="ant-advanced-search-form"
+          labelCol={{ span: 5 }}>
+          <Form.Item name='name' label="Name" rules={[{ required: false }]}>
+            <Input placeholder="Please input content" />
+          </Form.Item>
+          <Form.Item name='enName' label="EnName" rules={[{ required: false }]}>
+            <Input placeholder="Please input content" />
+          </Form.Item>
+          <Form.Item name='platform' label="Platform">
+            <Select
+              mode="multiple"
+              allowClear
+              style={{ width: '100%' }}
+              placeholder="Please select"
+            >
+              {platformDict.map((item: any) => {
+                return <Option key={item.key}>{item.value}</Option>
+              })}
+            </Select>
+          </Form.Item>
+          <Form.Item name='desp' label="Description" rules={[{ required: false }]}>
+            <Input.TextArea placeholder="Please input content" />
+          </Form.Item>
+          <Form.Item name='selfOpinion' label="Self Opinion" rules={[{ required: false }]}>
+            <Input.TextArea placeholder="Please input content" />
+          </Form.Item>
+        </Form>
+      </Modal>
       <Form
         form={form}
         name="advanced_search"
@@ -192,9 +252,18 @@ const TableSearchForm = (props: any) => {
           </Col>
         </Row>
       </Form>
+      <div style={{ marginBottom: 16 }}>
+        <Button type="primary" onClick={(e) => openDialog(e, 'add')} >
+          Add
+        </Button>
+        <Button type="primary" onClick={getSelected} >
+          Reload
+        </Button>
+      </div>
       <AdminTable
         ref={childrenRef}
         columns={columns}
+        setSelect={setSelectedRows}
         dataSource={tableData} />
     </div>
   );
