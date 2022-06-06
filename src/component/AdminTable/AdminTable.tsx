@@ -6,19 +6,34 @@ import { formatDict } from "@/utils/utils";
 
 
 const AdminTable = forwardRef((props: any, ref: any) => {
-  const { columns, dataSource, setSelect } = props
+  const { columns, dataSource, setSelect, openDialog } = props
 
   const [loading, setLoading] = useState(false);
   const [selectedRowKeys, setSelectedRowKeys] = useState([] as any);
   const hasSelected = selectedRowKeys.length > 0;
 
-  useImperativeHandle(ref, () => ({
+  let optColumns = [...columns, ...[
+    {
+      title: 'operation',
+      dataIndex: 'operation',
+      render: (_: any, record: any) => {
+        return (
+          <div>
+            <a style={{ marginRight: 8 }} onClick={() => openDialog('edit', record)}>Edit</a>
+            {/* <a onClick={() => showDetail}>Info</a> */}
+          </div >
+        )
+      }
+    },
+  ]];
 
+  useImperativeHandle(ref, () => ({
     // 父组件调用子组件实例
     // getGameList
   }));
 
   useEffect(() => {
+    console.log(123);
   }, [])
 
   const start = () => {
@@ -53,7 +68,7 @@ const AdminTable = forwardRef((props: any, ref: any) => {
         {hasSelected ? `Selected ${selectedRowKeys.length} items` : ''}
       </span>
     </div>
-    <Table rowKey="id" rowSelection={rowSelection} columns={columns} dataSource={dataSource} />
+    <Table rowKey="id" rowSelection={rowSelection} columns={optColumns} dataSource={dataSource} />
   </div>)
 })
 

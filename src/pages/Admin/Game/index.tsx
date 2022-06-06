@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { ReactChild, ReactFragment, useEffect, useRef, useState } from "react";
 import { Button, message, Image, Form, Row, Col, Input, Select, Tag, DatePicker, Modal } from 'antd';
 import { ColumnsType } from 'antd/es/table';
 import { games } from "@/api/Games/index";
@@ -7,6 +7,7 @@ import { connect } from "react-redux";
 import { formatDict } from "@/utils/utils";
 import { platformDict } from "@/utils/dict";
 import AdminTable from "@/component/AdminTable/AdminTable";
+import { RenderedCell } from "_rc-table@7.24.1@rc-table/lib/interface";
 const { Option } = Select;
 const { RangePicker } = DatePicker
 const imgUrl = process.env.BASE_IMAGE_URL
@@ -80,6 +81,7 @@ const columns: ColumnsType<Game> = [
     dataIndex: 'visits',
   },
 ];
+
 const TableSearchForm = (props: any) => {
   const { dict, setDict } = props
   const [form] = Form.useForm();
@@ -91,6 +93,7 @@ const TableSearchForm = (props: any) => {
   const [visible, setVisible] = useState(false);
   const [confirmLoading, setConfirmLoading] = useState(false);
   const [modalTitle, setModalTitle] = useState('Add a new game');
+  const [initialValues, setInitialValues] = useState({});
 
   const childrenRef = useRef(null);
   // console.log(childrenRef .current);
@@ -109,23 +112,22 @@ const TableSearchForm = (props: any) => {
 
   useEffect(() => {
     getGameList(params);
-    getDictList();
   }, [])
 
-  const getDictList = () => {
-    getDict({ dictName: 'dict_platform' }).then(res => {
-      if (res.status === '0') {
-        setDict({
-          ...{
-            platform: formatDict(res.data),
-            platformArr: res.data,
-          }
-        })
-      }
-    }).catch(err => {
-      message.error(err)
-    })
-  }
+  // const getDictList = () => {
+  //   getDict({ dictName: 'dict_platform' }).then(res => {
+  //     if (res.status === '0') {
+  //       setDict({
+  //         ...{
+  //           platform: formatDict(res.data),
+  //           platformArr: res.data,
+  //         }
+  //       })
+  //     }
+  //   }).catch(err => {
+  //     message.error(err)
+  //   })
+  // }
 
   const getFields = () => {
     // 搜索框暂时先姓名 平台 创建时间（range）
@@ -179,11 +181,14 @@ const TableSearchForm = (props: any) => {
     console.log(editForm.getFieldsValue());
   }
 
-  const openDialog = (e: React.MouseEvent, type: string) => {
+  const openDialog = (type: string, record = {}) => {
+    console.log('******************');
+    console.log(record);
     if (type === 'edit') {
       setModalTitle('Edit')
     }
     console.log(type);
+    setInitialValues(record);
     setVisible(true);
   }
 
@@ -200,6 +205,7 @@ const TableSearchForm = (props: any) => {
           form={editForm}
           name="advanced_search"
           className="ant-advanced-search-form"
+          initialValues={initialValues}
           labelCol={{ span: 5 }}>
           <Form.Item name='name' label="Name" rules={[{ required: false }]}>
             <Input placeholder="Please input content" />
@@ -253,18 +259,23 @@ const TableSearchForm = (props: any) => {
         </Row>
       </Form>
       <div style={{ marginBottom: 16 }}>
-        <Button type="primary" onClick={(e) => openDialog(e, 'add')} >
+        <Button style={{ marginRight: 8 }} type="primary" onClick={() => openDialog('add')} >
           Add
         </Button>
-        <Button type="primary" onClick={getSelected} >
+        <Button type="primary" disabled={!selectedRows.length} onClick={getSelected} >
           Reload
         </Button>
+        <span style={{ marginLeft: 8 }}>
+          {selectedRows.length > 0 ? `Selected ${selectedRows.length} items` : ''}
+        </span>
       </div>
       <AdminTable
         ref={childrenRef}
         columns={columns}
         setSelect={setSelectedRows}
-        dataSource={tableData} />
+        dataSource={tableData}
+        openDialog={openDialog}
+      />
     </div>
   );
 };
